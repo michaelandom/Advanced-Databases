@@ -1,5 +1,36 @@
+CREATE TABLE `SSO_Provider` (
+    `sso_provider_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `sso_provider` VARCHAR(255) NOT NULL UNIQUE, 
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP  
+);
+
+CREATE TABLE `Billing_Address` (
+    `billing_address_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `billing_email` VARCHAR(255),
+    `billing_street_address` TEXT,
+    `billing_street_address_2` TEXT,
+    `billing_state` VARCHAR(255),
+    `billing_postcode` VARCHAR(10), -- Use VARCHAR for postal codes
+    `billing_suburb` VARCHAR(255),
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE `Bussiness_Account` (
+    `bussiness_account_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `company_ABN` VARCHAR(20) NOT NULL, 
+    `company_name` VARCHAR(255) NOT NULL,
+    `logo` TEXT,
+    `is_active` BOOLEAN NOT NULL,
+    `billing_address_id` BIGINT ,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`billing_address_id`) REFERENCES `Billing_Address`(`billing_address_id`) ON DELETE SET NULL
+);
+
 CREATE TABLE `Users` (
-    `user_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `user_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `username` VARCHAR(100) NOT NULL UNIQUE,
     `first_name` VARCHAR(255) NOT NULL,
     `last_name` VARCHAR(255) NOT NULL,
@@ -26,15 +57,8 @@ CREATE TABLE `Users` (
     FOREIGN KEY (`bussiness_account_id`) REFERENCES `Bussiness_Account`(`bussiness_account_id`)
 );
 
-CREATE TABLE `SSO_Provider` (
-    `sso_provider_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `sso_provider` VARCHAR(255) NOT NULL UNIQUE, 
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP  
-);
-
 CREATE TABLE `Groups` (
-    `group_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `group_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL UNIQUE,
     `description` TEXT NOT NULL,
     `group_type` ENUM('PERMISSION','EVENT') NOT NULL DEFAULT 'PERMISSION',
@@ -43,7 +67,7 @@ CREATE TABLE `Groups` (
 );
 
 CREATE TABLE `Group_Members` (
-    `group_member_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `group_member_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `group_id` BIGINT NOT NULL,
     `user_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -52,8 +76,17 @@ CREATE TABLE `Group_Members` (
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
+CREATE TABLE `Permissions` (
+    `permission_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `permission_name` VARCHAR(255) NOT NULL UNIQUE,
+    `description` TEXT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
+);
+
+
 CREATE TABLE `Group_Permissions` (
-    `group_permission_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `group_permission_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `group_id` BIGINT NOT NULL,
     `permission_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -62,31 +95,12 @@ CREATE TABLE `Group_Permissions` (
     FOREIGN KEY (`permission_id`) REFERENCES `Permissions`(`permission_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Permissions` (
-    `permission_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `permission_name` VARCHAR(255) NOT NULL UNIQUE,
-    `description` TEXT NOT NULL,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
-);
-
-CREATE TABLE `Billing_Address` (
-    `billing_address_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `billing_email` VARCHAR(255),
-    `billing_street_address` TEXT,
-    `billing_street_address_2` TEXT,
-    `billing_state` VARCHAR(255),
-    `billing_postcode` VARCHAR(10), -- Use VARCHAR for postal codes
-    `billing_suburb` VARCHAR(255),
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
-);
 
 CREATE TABLE `Password_Reset` (
-    `password_reset_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `password_reset_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT NOT NULL,
     `is_Active` BOOLEAN NOT NULL DEFAULT TRUE,
-    `code` VARCHAR(255) NOT NULL,
+    `code` VARCHAR(50) NOT NULL,
     `reseated_by` BIGINT,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -94,20 +108,8 @@ CREATE TABLE `Password_Reset` (
     FOREIGN KEY (`reseated_by`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Bussiness_Account` (
-    `bussiness_account_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `company_ABN` VARCHAR(20) NOT NULL, 
-    `company_name` VARCHAR(255) NOT NULL,
-    `logo` TEXT,
-    `is_active` BOOLEAN NOT NULL,
-    `billing_address_id` BIGINT,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`billing_address_id`) REFERENCES `Billing_Address`(`billing_address_id`) ON DELETE SET NULL
-);
-
 CREATE TABLE `Delete_Request` (
-    `delete_request_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `delete_request_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT NOT NULL,
     `reason` ENUM('OTHER') NOT NULL,
     `note` TEXT NULL,
@@ -116,8 +118,8 @@ CREATE TABLE `Delete_Request` (
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Notice` (
-    `notice_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE `Notices` (
+    `notice_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `title` TEXT NOT NULL,
     `target` ENUM('USER', 'RIDER', 'ALL') NOT NULL,
     `importance` BOOLEAN NOT NULL DEFAULT FALSE,
@@ -128,8 +130,8 @@ CREATE TABLE `Notice` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `Event` (
-    `event_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE `Events` (
+    `event_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `title` TEXT NOT NULL,
     `link` TEXT,
     `contents` TEXT,
@@ -142,7 +144,7 @@ CREATE TABLE `Event` (
 );
 
 CREATE TABLE `FAQ` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `question` TEXT NOT NULL,
     `answer` TEXT NOT NULL,
     `isForRider` BOOLEAN DEFAULT FALSE,
@@ -150,8 +152,8 @@ CREATE TABLE `FAQ` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `Coupon` (
-    `coupon_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE `Coupons` (
+    `coupon_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `discount_type` ENUM('PERCENTAGE', 'FLATRATE') NOT NULL,
     `discount_amount` FLOAT(53) NULL,
     `discount_percentage` FLOAT(53) NULL,
@@ -172,17 +174,17 @@ CREATE TABLE `Coupon` (
 );
 
 CREATE TABLE `User_Coupon` (
-    `user_coupon_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `user_coupon_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `coupon_id` BIGINT NOT NULL,
     `user_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE,
-    FOREIGN KEY (`coupon_id`) REFERENCES `Coupon`(`coupon_id`) ON DELETE CASCADE
+    FOREIGN KEY (`coupon_id`) REFERENCES `Coupons`(`coupon_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `Riders` (
-    `rider_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `rider_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNIQUE NOT NULL,
     `latitude` FLOAT,
     `longitude` FLOAT,
@@ -214,11 +216,20 @@ CREATE TABLE `Riders` (
     `signature` VARCHAR(255) NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT check_fcm_token CHECK (
+        JSON_TYPE(fcm_token) = 'ARRAY' AND
+        JSON_SCHEMA_VALID('{
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }', fcm_token)
+    ),
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `Vehicles` (
-    `vehicle_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `vehicle_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `rider_id` BIGINT NOT NULL,
     `vehicle_type` ENUM('BICYCLE', 'MOTORBIKE', 'CAR') NOT NULL,
     `model_year` VARCHAR(4),
@@ -237,7 +248,7 @@ CREATE TABLE `Vehicles` (
 );
 
 CREATE TABLE `Penalities` (
-    `penalitie_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `penalitie_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `rider_id` BIGINT NOT NULL,
     `reason` VARCHAR(255) NOT NULL,
     `deducted_amount` FLOAT,
@@ -252,8 +263,8 @@ CREATE TABLE `Penalities` (
     FOREIGN KEY (`admin_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Suspension` (
-    `suspension_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE `Suspensions` (
+    `suspension_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `rider_id` BIGINT NOT NULL,
     `reason` VARCHAR(255) NOT NULL,
     `is_system_suspenstion` BOOLEAN DEFAULT FALSE,
@@ -269,8 +280,8 @@ CREATE TABLE `Suspension` (
 );
 
 CREATE TABLE `Reviews` (
-    `review_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `user_id` VARCHAR(255) NOT NULL,
+    `review_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `user_id` BIGINT NOT NULL,
     `rider_id` BIGINT NOT NULL,
     `review` TEXT,
     `rate` INT NOT NULL CHECK (rate BETWEEN 1 AND 5),
@@ -281,7 +292,7 @@ CREATE TABLE `Reviews` (
 );
 
 CREATE TABLE `Questions` (
-    `question_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `question_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `image` VARCHAR(255),
     `question_text` VARCHAR(255) NOT NULL,
     `description` TEXT,
@@ -290,7 +301,7 @@ CREATE TABLE `Questions` (
 );
 
 CREATE TABLE `Question_Options` (
-    `question_option_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `question_option_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `question_id` BIGINT NOT NULL,
     `option` VARCHAR(255) NOT NULL,
     `description` TEXT,
@@ -301,7 +312,7 @@ CREATE TABLE `Question_Options` (
 );
 
 CREATE TABLE `Rider_Answers` (
-    `rider_answer_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `rider_answer_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `rider_id` BIGINT NOT NULL,
     `option_id` BIGINT NOT NULL,
     `quiz_key` ENUM('INITIAL_QUIZ', 'SECOND_QUIZ', 'FINAL_QUIZ', 'UNAVAILABLE') DEFAULT 'INITIAL_QUIZ',
@@ -313,8 +324,8 @@ CREATE TABLE `Rider_Answers` (
 );
 
 
-CREATE TABLE `Order` (
-    `order_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE `Orders` (
+    `order_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `order_number` VARCHAR(255) UNIQUE NOT NULL,
     `customer_id` BIGINT,
     `customer_full_name` VARCHAR(255),
@@ -355,7 +366,7 @@ CREATE TABLE `Order` (
 
 
 CREATE TABLE `Cancellation_Request` (
-    `cancellation_request_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `cancellation_request_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `type` ENUM('FULL', 'PARTIAL') NOT NULL,
     `status` ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
     `cancellation_fee` FLOAT,
@@ -369,12 +380,21 @@ CREATE TABLE `Cancellation_Request` (
     `order_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`order_id`) REFERENCES `Order`(`order_id`) ON DELETE CASCADE,
+    CONSTRAINT check_cancellation_request_photos CHECK (
+        JSON_TYPE(photos) = 'ARRAY' AND
+        JSON_SCHEMA_VALID('{
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }', photos)
+    ),
+    FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE,
     FOREIGN KEY (`cancelled_by`) REFERENCES `Users`(`user_id`) ON DELETE SET NULL
 );
 
 CREATE TABLE `Cancellation_Rider_Request` (
-    `cancellation_rider_request_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `cancellation_rider_request_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `status` ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
     `reason` VARCHAR(255) NOT NULL,
     `photos` JSON NOT NULL,
@@ -385,12 +405,21 @@ CREATE TABLE `Cancellation_Rider_Request` (
     `order_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`order_id`) REFERENCES `Order`(`order_id`) ON DELETE CASCADE,
+    CONSTRAINT check_photos CHECK (
+        JSON_TYPE(photos) = 'ARRAY' AND
+        JSON_SCHEMA_VALID('{
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }', photos)
+    ),
+    FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE,
     FOREIGN KEY (`cancelled_by`) REFERENCES `Users`(`user_id`) ON DELETE SET NULL
 );
 
 CREATE TABLE `Extr_Fee` (
-    `extr_fee_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `extr_fee_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `message` TEXT,
     `amount` FLOAT NOT NULL,
     `card_number` VARCHAR(255) NOT NULL,
@@ -400,11 +429,11 @@ CREATE TABLE `Extr_Fee` (
     `order_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`order_id`) REFERENCES `Order`(`order_id`) ON DELETE CASCADE
+    FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `Destination` (
-    `destination_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `destination_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `destination_latitude` FLOAT NOT NULL,
     `destination_longitude` FLOAT NOT NULL,
     `destination_address_text` VARCHAR(255),
@@ -417,30 +446,37 @@ CREATE TABLE `Destination` (
     `recipient_name` VARCHAR(255),
     `order_id` BIGINT NOT NULL,
     `status` ENUM('PENDING', 'COMPLETED', 'CANCELLED') DEFAULT 'PENDING',
-    `evidence_id` BIGINT,
     `delivery_by_id` BIGINT,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`order_id`) REFERENCES `Order`(`order_id`) ON DELETE CASCADE,
-    FOREIGN KEY (`evidence_id`) REFERENCES `Evidence`(`evidence_id`) ON DELETE SET NULL,
+    FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE,
     FOREIGN KEY (`delivery_by_id`) REFERENCES `Riders`(`rider_id`) ON DELETE SET NULL
 );
 
 CREATE TABLE `Evidence` (
-    `evidence_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `evidence_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `destination_id` BIGINT UNIQUE NOT NULL,
-    `url` JSON NOT NULL,
+    `urls` JSON NOT NULL,
     `recipient_name` VARCHAR(255),
     `recipient_DOB` TIMESTAMP,
     `note` TEXT,
     `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT check_urls CHECK (
+        JSON_TYPE(urls) = 'ARRAY' AND
+        JSON_SCHEMA_VALID('{
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }', urls)
+    ),
     FOREIGN KEY (`destination_id`) REFERENCES `Destination`(`destination_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `Delivery_Detail` (
-    `delivery_detail_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `delivery_detail_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `pickup_latitude` FLOAT NOT NULL,
     `pickup_longitude` FLOAT NOT NULL,
     `pickup_address_text` VARCHAR(255),
@@ -457,22 +493,31 @@ CREATE TABLE `Delivery_Detail` (
     `order_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`order_id`) REFERENCES `Order`(`order_id`) ON DELETE CASCADE
+    CONSTRAINT check_pickup_photos CHECK (
+        JSON_TYPE(pickup_photos) = 'ARRAY' AND
+        JSON_SCHEMA_VALID('{
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }', pickup_photos)
+    ),
+    FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `Review` (
-    `review_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `review_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `rating` INT NOT NULL,
     `comment` TEXT,
     `note` TEXT,
     `order_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-   FOREIGN KEY (`order_id`) REFERENCES `Order`(`order_id`) ON DELETE CASCADE
+   FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `Reference` (
-    `reference_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `reference_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `order_ids` JSON NOT NULL,
     `amount` FLOAT NOT NULL,
     `currency` VARCHAR(255) NOT NULL,
@@ -480,55 +525,127 @@ CREATE TABLE `Reference` (
     `payment_method` VARCHAR(255),
     `result_json` JSON NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
-   );
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT check_order_ids CHECK (
+        JSON_TYPE(order_ids) = 'ARRAY' AND
+        JSON_SCHEMA_VALID('{
+            "type": "array",
+            "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 18446744073709551615
+            }
+        }', order_ids)
+    )
+);
 
+CREATE TABLE `Size_And_Weight_Descriptions` (
+    `size_weight_description_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `size` ENUM('SMALL', 'MEDIUM', 'LARGE') NOT NULL,
+    `size_description` TEXT NOT NULL,
+    `weight` VARCHAR(255) NOT NULL,
+    `is_latest` BOOLEAN DEFAULT TRUE,
+    `previous_id` BIGINT ,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    `unique_size_check` VARCHAR(50) GENERATED ALWAYS AS (
+        CASE WHEN is_latest = TRUE 
+        THEN size 
+        ELSE NULL 
+        END
+    ) STORED,
+    UNIQUE (`unique_size_check`),
+    FOREIGN KEY (`previous_id`) REFERENCES `Size_And_Weight_Descriptions`(`size_weight_description_id`)
+);
 CREATE TABLE `Item` (
-    `item_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `item_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
     `size_weight_description_id` BIGINT NOT NULL,
     `item_classification` JSON NOT NULL,
-    `photos` JSON NOT NULL DEFAULT '[]',
+    `photos` JSON NOT NULL,
     `destination_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-     FOREIGN KEY (`destination_id`) REFERENCES `Destination`(`destination_id`) ON DELETE CASCADE,
-     FOREIGN KEY (`size_weight_description_id`) REFERENCES `Size_And_Weight_Descriptions`(`size_weight_description_id`) 
+    CONSTRAINT check_item_photos CHECK (
+        JSON_TYPE(photos) = 'ARRAY' AND
+        JSON_SCHEMA_VALID('{
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }', photos)
+    ),
+    CONSTRAINT check_item_classification CHECK (
+        JSON_TYPE(item_classification) = 'ARRAY' AND
+        JSON_SCHEMA_VALID('{
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "FRAGILE",
+                    "LOW_TEMPERATURE",
+                    "HEAVY_ITEM",
+                    "HI_VIS_VEST_REQUIREMENT",
+                    "ALCOHOL_TOBACCO_18_PLUS"
+                ]
+            }
+        }', item_classification)
+    ),
+    FOREIGN KEY (`destination_id`) REFERENCES `Destination`(`destination_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`size_weight_description_id`) REFERENCES `Size_And_Weight_Descriptions`(`size_weight_description_id`)
 );
 
 CREATE TABLE `Note_Delivery_Detail` (
-    `note_delivery_detail_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `note_delivery_detail_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `note` TEXT NOT NULL,
-    `photos` JSON NOT NULL DEFAULT '[]',
+    `photos` JSON NOT NULL,
     `delivery_detail_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT check_note_photos CHECK (
+        JSON_TYPE(photos) = 'ARRAY' AND
+        JSON_SCHEMA_VALID('{
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }', photos)
+    ),
     FOREIGN KEY (`delivery_detail_id`) REFERENCES `Delivery_Detail`(`delivery_detail_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `Note_Destination` (
-    `note_destination_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `note_destination_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `note` TEXT NOT NULL,
-    `photos` JSON NOT NULL DEFAULT '[]',
+    `photos` JSON NOT NULL,
     `destination_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT check_note_destination CHECK (
+        JSON_TYPE(photos) = 'ARRAY' AND
+        JSON_SCHEMA_VALID('{
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }', photos)
+    ),
     FOREIGN KEY (`destination_id`) REFERENCES `Destination`(`destination_id`) ON DELETE CASCADE
 );
 
 
 CREATE TABLE `Advertisement` (
-    `advertisement_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `advertisement_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `title` VARCHAR(255) NOT NULL,
     `content` TEXT NOT NULL,
-    `photo` VARCHAR(255) NOT NULL,
+    `photo` TEXT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `User_Favorite_Address` (
-    `favorite_address_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `user_id` BIGINT UNSIGNED NOT NULL,
+    `favorite_address_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `user_id` BIGINT  NOT NULL,
     `long_address` TEXT NOT NULL,
     `short_address` VARCHAR(255) NOT NULL,
     `custom_address` VARCHAR(255),
@@ -543,8 +660,8 @@ CREATE TABLE `User_Favorite_Address` (
 
 
 CREATE TABLE `Transport_Basic_Prices` (
-    `transport_basic_price_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `previous_id` BIGINT UNSIGNED,
+    `transport_basic_price_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `previous_id` BIGINT ,
     `vehicle_type` ENUM('BICYCLE', 'MOTORBIKE', 'CAR') NOT NULL,
     `basic_price` FLOAT NOT NULL,
     `previous_basic_price` FLOAT,
@@ -569,14 +686,14 @@ CREATE TABLE `Transport_Basic_Prices` (
 
 
 CREATE TABLE `Peak_Time_Rate` (
-    `peak_time_rate_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `peak_time_rate_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `is_weekend` BOOLEAN DEFAULT FALSE,
     `start_time` VARCHAR(255) NOT NULL,
     `end_time` VARCHAR(255) NOT NULL,
     `rate` FLOAT NOT NULL,
     `is_latest` BOOLEAN DEFAULT TRUE,
     `is_deleted` BOOLEAN DEFAULT FALSE,
-    `previous_id` BIGINT UNSIGNED,
+    `previous_id` BIGINT ,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     `unique_peak_time_rate_check` VARCHAR(50) GENERATED ALWAYS AS (
@@ -591,32 +708,14 @@ CREATE TABLE `Peak_Time_Rate` (
 
 
 
-CREATE TABLE `Size_And_Weight_Descriptions` (
-    `size_weight_description_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `size` ENUM('SMALL', 'MEDIUM', 'LARGE') NOT NULL,
-    `size_description` TEXT NOT NULL,
-    `weight` VARCHAR(255) NOT NULL,
-    `is_latest` BOOLEAN DEFAULT TRUE,
-    `previous_id` BIGINT UNSIGNED,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-    `unique_size_check` VARCHAR(50) GENERATED ALWAYS AS (
-        CASE WHEN is_latest = TRUE 
-        THEN size 
-        ELSE NULL 
-        END
-    ) STORED,
-    UNIQUE (`unique_size_check`),
-    FOREIGN KEY (`previous_id`) REFERENCES `Size_And_Weight_Descriptions`(`size_weight_description_id`)
-);
 
 CREATE TABLE `Rider_Commission` (
-    `rider_commission_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `rider_commission_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `basic_commission` FLOAT NOT NULL,
     `overtime_rate` FLOAT NOT NULL,
     `holiday_rate` FLOAT NOT NULL,
     `is_latest` BOOLEAN DEFAULT TRUE,
-    `previous_id` BIGINT UNSIGNED,
+    `previous_id` BIGINT ,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     `unique_rider_commission_check` VARCHAR(50) GENERATED ALWAYS AS (
@@ -630,11 +729,11 @@ CREATE TABLE `Rider_Commission` (
    );
 
 CREATE TABLE `Vehicle_Basic_Prices` (
-    `vehicle_basic_price_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `vehicle_basic_price_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `vehicle_type` ENUM('BICYCLE', 'MOTORBIKE', 'CAR') UNIQUE NOT NULL,
     `price` FLOAT NOT NULL,
     `is_latest` BOOLEAN DEFAULT TRUE,
-    `previous_id` BIGINT UNSIGNED,
+    `previous_id` BIGINT ,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     `unique_vehicle_type_check` VARCHAR(50) GENERATED ALWAYS AS (
@@ -650,10 +749,10 @@ CREATE TABLE `Vehicle_Basic_Prices` (
 
 
 CREATE TABLE `Pickup_Time_Basic_Prices` (
-    `pickup_time_basic_price_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `pickup_time_basic_price_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `pickup_time` ENUM('TODAY', 'ASAP', 'IN_2_HOURS', 'OTHER_DAY') NOT NULL,
     `vehicle_type` ENUM('BICYCLE', 'MOTORBIKE', 'CAR') NOT NULL,
-    `previous_id` BIGINT UNSIGNED,
+    `previous_id` BIGINT ,
     `price` FLOAT NOT NULL,
     `is_latest` BOOLEAN DEFAULT TRUE,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -670,7 +769,7 @@ CREATE TABLE `Pickup_Time_Basic_Prices` (
 
 
 CREATE TABLE `None_Business_Hour_Rates` (
-    `none_business_hour_rate_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `none_business_hour_rate_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `start_time` VARCHAR(255) NOT NULL,
     `end_time` VARCHAR(255) NOT NULL,
     `rate` FLOAT NOT NULL,
@@ -688,7 +787,7 @@ CREATE TABLE `None_Business_Hour_Rates` (
 
 
 CREATE TABLE `State` (
-    `state_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `state_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) UNIQUE NOT NULL,
     `code` VARCHAR(10) NOT NULL,
     `logo` VARCHAR(255),
@@ -697,7 +796,7 @@ CREATE TABLE `State` (
    );
 
 CREATE TABLE `Payment_Webhook_Payload` (
-    `payment_webhook_payload_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `payment_webhook_payload_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `pspReference` VARCHAR(255) NOT NULL,
     `merchantReference` VARCHAR(255) NOT NULL,
     `originalReference` VARCHAR(255),
@@ -711,7 +810,7 @@ CREATE TABLE `Payment_Webhook_Payload` (
    );
 
 CREATE TABLE `Service_Area` (
-    `service_area_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `service_area_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
     `code` VARCHAR(255),
     `is_active` BOOLEAN DEFAULT FALSE,
@@ -723,10 +822,10 @@ CREATE TABLE `Service_Area` (
 
 
 CREATE TABLE `Announcement` (
-    `announcement_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `announcement_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `title` VARCHAR(255) NOT NULL,
     `content` TEXT NOT NULL,
-    `image` VARCHAR(255),
+    `image` TEXT,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
@@ -736,13 +835,13 @@ CREATE TABLE `App_Version` (
     `app_version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `app_name` ENUM('RIDER', 'CUSTOMER') NOT NULL,
     `update_type` BOOLEAN NOT NULL,
-    `version` VARCHAR(255) NOT NULL,
+    `version` VARCHAR(50) NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `Driver_Guide` (
-    `driver_guide_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `driver_guide_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `file` TEXT NOT NULL,
     `description` TEXT,
     `is_important` BOOLEAN DEFAULT FALSE,
@@ -751,8 +850,8 @@ CREATE TABLE `Driver_Guide` (
 );
 
 CREATE TABLE `Rider_Payments` (
-    `rider_payment_id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `rider_id` BIGINT UNSIGNED NOT NULL,
+    `rider_payment_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `rider_id` BIGINT  NOT NULL,
     `distance` FLOAT NOT NULL,
     `price` FLOAT NOT NULL,
     `is_exported` BOOLEAN DEFAULT FALSE,
@@ -766,6 +865,4 @@ CREATE TABLE `Rider_Payments` (
 
 
 CREATE INDEX idx_user_phone ON `Users`(`phone`);
-
--- Example of a composite index for faster querying
-CREATE INDEX idx_order_status ON `Order`(`order_status`, `customer_id`);
+CREATE INDEX idx_order_status ON `Orders`(`order_status`, `customer_id`);
