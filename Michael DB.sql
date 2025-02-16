@@ -210,15 +210,6 @@ CREATE TABLE `Riders` (
     `signature` TEXT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT check_fcm_token CHECK (
-        JSON_TYPE(fcm_token) = 'ARRAY' AND
-        JSON_SCHEMA_VALID('{
-            "type": "array",
-            "items": {
-                "type": "string"
-            }
-        }', fcm_token)
-    ),
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
