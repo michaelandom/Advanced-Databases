@@ -777,6 +777,17 @@ CREATE TABLE `State` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
    );
+   
+CREATE TABLE `Service_Area` (
+    `service_area_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL,
+    `code` VARCHAR(255),
+    `is_active` BOOLEAN DEFAULT FALSE,
+    `state_name` VARCHAR(255) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+     FOREIGN KEY (`state_name`) REFERENCES `State`(`name`) ON DELETE CASCADE
+);
 
 CREATE TABLE `Payment_Webhook_Payload` (
     `payment_webhook_payload_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -792,16 +803,6 @@ CREATE TABLE `Payment_Webhook_Payload` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
    );
 
-CREATE TABLE `Service_Area` (
-    `service_area_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `name` VARCHAR(255) NOT NULL,
-    `code` VARCHAR(255),
-    `is_active` BOOLEAN DEFAULT FALSE,
-    `state_name` VARCHAR(255) NOT NULL,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-     FOREIGN KEY (`state_name`) REFERENCES `State`(`name`) ON DELETE CASCADE
-);
 
 
 CREATE TABLE `Announcement` (
