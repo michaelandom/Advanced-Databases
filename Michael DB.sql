@@ -26,7 +26,7 @@ CREATE TABLE `Bussiness_Account` (
     `billing_address_id` BIGINT ,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`billing_address_id`) REFERENCES `Billing_Address`(`billing_address_id`) ON DELETE SET NULL
+    FOREIGN KEY (`billing_address_id`) REFERENCES `Billing_Address`(`billing_address_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `Users` (
@@ -118,29 +118,27 @@ CREATE TABLE `Delete_Request` (
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Notices` (
-    `notice_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `title` TEXT NOT NULL,
-    `target` ENUM('USER', 'RIDER', 'ALL') NOT NULL,
-    `importance` BOOLEAN NOT NULL DEFAULT FALSE,
-    `contents` TEXT NOT NULL,
-    `send_push_notification` BOOLEAN NOT NULL DEFAULT FALSE,
-    `banner_image` TEXT NOT NULL,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
-);
-
 CREATE TABLE `Events` (
     `event_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `title` TEXT NOT NULL,
     `link` TEXT,
     `contents` TEXT,
     `start_date` DATETIME NOT NULL,
-    `end_date` DATETIME NOT NULL,
+    `end_date` DATETIME,
     `send_push_notification` BOOLEAN NOT NULL DEFAULT FALSE,
     `banner_image` TEXT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE `Event_Groups` (
+    `event_group_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `event_id` BIGINT NOT NULL,
+    `group_id` BIGINT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`group_id`) REFERENCES `Groups`(`group_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`event_id`) REFERENCES `Events`(`event_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `FAQ` (
@@ -188,15 +186,12 @@ CREATE TABLE `Riders` (
     `user_id` BIGINT UNIQUE NOT NULL,
     `latitude` FLOAT,
     `longitude` FLOAT,
-    `current_vehicle_id` CHAR(36),
     `is_online` BOOLEAN DEFAULT FALSE,
     `is_deleted` BOOLEAN DEFAULT FALSE,
     `is_suspend` BOOLEAN DEFAULT FALSE,
     `passed_quiz` BOOLEAN DEFAULT FALSE,
     `profile_completed` BOOLEAN DEFAULT FALSE,
     `status` ENUM('PENDING', 'APPROVED', 'REJECTED', 'DORMANT', 'DELETED', 'SUSPENDED', 'ACTIVE', 'INACTIVE') DEFAULT 'PENDING',
-    `last_login` TIMESTAMP NULL,
-    `fcm_token` JSON,
     `last_location_time` TIMESTAMP NULL,
     `emergency_contact_first_name` VARCHAR(255) NOT NULL,
     `emergency_contact_last_name` VARCHAR(255) NOT NULL,
@@ -210,10 +205,9 @@ CREATE TABLE `Riders` (
     `visa_valid_from` TIMESTAMP NULL,
     `visa_valid_to` TIMESTAMP NULL,
     `admin_note` TEXT,
-    `rejection_reason` TEXT,
     `rejected_at` TIMESTAMP NULL,
     `approved_at` TIMESTAMP NULL,
-    `signature` VARCHAR(255) NOT NULL,
+    `signature` TEXT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT check_fcm_token CHECK (
@@ -231,6 +225,7 @@ CREATE TABLE `Riders` (
 CREATE TABLE `Vehicles` (
     `vehicle_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `rider_id` BIGINT NOT NULL,
+    `is_current_vehicle` BOOLEAN DEFAULT FALSE,
     `vehicle_type` ENUM('BICYCLE', 'MOTORBIKE', 'CAR') NOT NULL,
     `model_year` VARCHAR(4),
     `manufacturer` VARCHAR(255),
@@ -244,6 +239,13 @@ CREATE TABLE `Vehicles` (
     `expiry_date` TIMESTAMP NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    `unique_is_current_vehicle_check` VARCHAR(50) GENERATED ALWAYS AS (
+        CASE WHEN is_current_vehicle = TRUE 
+        THEN "CURRENT_VEHICLE"
+        ELSE NULL 
+        END
+    ) STORED,
+    UNIQUE (`rider_id`,`unique_is_current_vehicle_check`),
     FOREIGN KEY (`rider_id`) REFERENCES `Riders`(`rider_id`) ON DELETE CASCADE
 );
 
@@ -279,17 +281,6 @@ CREATE TABLE `Suspensions` (
     FOREIGN KEY (`suspened_by`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Reviews` (
-    `review_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `user_id` BIGINT NOT NULL,
-    `rider_id` BIGINT NOT NULL,
-    `review` TEXT,
-    `rate` INT NOT NULL CHECK (rate BETWEEN 1 AND 5),
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-     FOREIGN KEY (`rider_id`) REFERENCES `Riders`(`rider_id`) ON DELETE CASCADE,
-     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
-);
 
 CREATE TABLE `Questions` (
     `question_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -354,7 +345,6 @@ CREATE TABLE `Orders` (
     `is_forced_assignment` BOOLEAN DEFAULT FALSE,
     `boosted` BOOLEAN DEFAULT FALSE,
     `created_by_admin` BOOLEAN DEFAULT FALSE,
-    `admin_full_name` VARCHAR(255),
     `canceled_at` TIMESTAMP NULL,
     `assigned_by` BIGINT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -364,6 +354,20 @@ CREATE TABLE `Orders` (
     FOREIGN KEY (`assigned_by`) REFERENCES `Users`(`user_id`) ON DELETE SET NULL
 );
 
+CREATE TABLE `Reviews` (
+    `review_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `user_id` BIGINT NOT NULL,
+    `rider_id` BIGINT NOT NULL,
+    `order_id` BIGINT NOT NULL,
+    `review` TEXT,
+    `rate` INT NOT NULL CHECK (rate BETWEEN 1 AND 5),
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+     UNIQUE (rider_id,order_id),
+     FOREIGN KEY (`rider_id`) REFERENCES `Riders`(`rider_id`) ON DELETE CASCADE,
+     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE,
+     FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE
+);
 
 CREATE TABLE `Cancellation_Request` (
     `cancellation_request_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -452,29 +456,6 @@ CREATE TABLE `Destination` (
     FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE,
     FOREIGN KEY (`delivery_by_id`) REFERENCES `Riders`(`rider_id`) ON DELETE SET NULL
 );
-
-CREATE TABLE `Evidence` (
-    `evidence_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `destination_id` BIGINT UNIQUE NOT NULL,
-    `urls` JSON NOT NULL,
-    `recipient_name` VARCHAR(255),
-    `recipient_DOB` TIMESTAMP,
-    `note` TEXT,
-    `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT check_urls CHECK (
-        JSON_TYPE(urls) = 'ARRAY' AND
-        JSON_SCHEMA_VALID('{
-            "type": "array",
-            "items": {
-                "type": "string"
-            }
-        }', urls)
-    ),
-    FOREIGN KEY (`destination_id`) REFERENCES `Destination`(`destination_id`) ON DELETE CASCADE
-);
-
 CREATE TABLE `Delivery_Detail` (
     `delivery_detail_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `pickup_latitude` FLOAT NOT NULL,
@@ -505,15 +486,26 @@ CREATE TABLE `Delivery_Detail` (
     FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Review` (
-    `review_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `rating` INT NOT NULL,
-    `comment` TEXT,
+CREATE TABLE `Evidence` (
+    `evidence_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `destination_id` BIGINT UNIQUE NOT NULL,
+    `urls` JSON NOT NULL,
+    `recipient_name` VARCHAR(255),
+    `recipient_DOB` TIMESTAMP,
     `note` TEXT,
-    `order_id` BIGINT NOT NULL,
+    `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-   FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE
+    CONSTRAINT check_urls CHECK (
+        JSON_TYPE(urls) = 'ARRAY' AND
+        JSON_SCHEMA_VALID('{
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }', urls)
+    ),
+    FOREIGN KEY (`destination_id`) REFERENCES `Destination`(`destination_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `Reference` (
