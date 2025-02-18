@@ -17,11 +17,11 @@ CREATE TABLE `Billing_Address` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `Bussiness_Account` (
+CREATE TABLE `Bussiness_Accounts` (
     `bussiness_account_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `company_ABN` VARCHAR(20) NOT NULL, 
     `company_name` VARCHAR(255) NOT NULL,
-    `logo` TEXT,
+    `logo_url` TEXT,
     `is_active` BOOLEAN NOT NULL,
     `billing_address_id` BIGINT ,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -108,7 +108,7 @@ CREATE TABLE `Password_Reset` (
     FOREIGN KEY (`reseated_by`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Delete_Request` (
+CREATE TABLE `Delete_Requests` (
     `delete_request_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT NOT NULL,
     `reason` ENUM('OTHER') NOT NULL,
@@ -388,11 +388,11 @@ CREATE TABLE `Cancellation_Request` (
     FOREIGN KEY (`cancelled_by`) REFERENCES `Users`(`user_id`) ON DELETE SET NULL
 );
 
-CREATE TABLE `Cancellation_Rider_Request` (
+CREATE TABLE `Cancellation_Rider_Requests` (
     `cancellation_rider_request_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `status` ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
     `reason` VARCHAR(255) NOT NULL,
-    `photos` JSON NOT NULL,
+    `photo_urls` JSON NOT NULL,
     `remark` TEXT,
     `cancelled_by` BIGINT,
     `response_at` TIMESTAMP NULL,
@@ -401,13 +401,13 @@ CREATE TABLE `Cancellation_Rider_Request` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT check_photos CHECK (
-        JSON_TYPE(photos) = 'ARRAY' AND
+        JSON_TYPE(photo_urls) = 'ARRAY' AND
         JSON_SCHEMA_VALID('{
             "type": "array",
             "items": {
                 "type": "string"
             }
-        }', photos)
+        }', photo_urls)
     ),
     FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE,
     FOREIGN KEY (`cancelled_by`) REFERENCES `Users`(`user_id`) ON DELETE SET NULL
@@ -427,7 +427,7 @@ CREATE TABLE `Extr_Fee` (
     FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Destination` (
+CREATE TABLE `Destinations` (
     `destination_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `destination_latitude` FLOAT NOT NULL,
     `destination_longitude` FLOAT NOT NULL,
@@ -447,7 +447,7 @@ CREATE TABLE `Destination` (
     FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE,
     FOREIGN KEY (`delivery_by_id`) REFERENCES `Riders`(`rider_id`) ON DELETE SET NULL
 );
-CREATE TABLE `Delivery_Detail` (
+CREATE TABLE `Delivery_Details` (
     `delivery_detail_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `pickup_latitude` FLOAT NOT NULL,
     `pickup_longitude` FLOAT NOT NULL,
@@ -461,18 +461,18 @@ CREATE TABLE `Delivery_Detail` (
     `picked_up_notes` TEXT,
     `recipient_phone_number` VARCHAR(255),
     `recipient_name` VARCHAR(255),
-    `pickup_photos` JSON NOT NULL,
+    `pickup_photo_urls` JSON NOT NULL,
     `order_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT check_pickup_photos CHECK (
-        JSON_TYPE(pickup_photos) = 'ARRAY' AND
+        JSON_TYPE(pickup_photo_urls) = 'ARRAY' AND
         JSON_SCHEMA_VALID('{
             "type": "array",
             "items": {
                 "type": "string"
             }
-        }', pickup_photos)
+        }', pickup_photo_urls)
     ),
     FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE
 );
@@ -496,7 +496,7 @@ CREATE TABLE `Evidence` (
             }
         }', urls)
     ),
-    FOREIGN KEY (`destination_id`) REFERENCES `Destination`(`destination_id`) ON DELETE CASCADE
+    FOREIGN KEY (`destination_id`) REFERENCES `Destinationss`(`destination_id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `Reference` (
@@ -574,7 +574,7 @@ CREATE TABLE `Item` (
             }
         }', item_classification)
     ),
-    FOREIGN KEY (`destination_id`) REFERENCES `Destination`(`destination_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`destination_id`) REFERENCES `Destinations`(`destination_id`) ON DELETE CASCADE,
     FOREIGN KEY (`size_weight_description_id`) REFERENCES `Size_And_Weight_Descriptions`(`size_weight_description_id`)
 );
 
@@ -597,7 +597,7 @@ CREATE TABLE `Note_Delivery_Detail` (
     FOREIGN KEY (`delivery_detail_id`) REFERENCES `Delivery_Detail`(`delivery_detail_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Note_Destination` (
+CREATE TABLE `Note_Destinations` (
     `note_destination_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `note` TEXT NOT NULL,
     `photos` JSON NOT NULL,
@@ -613,15 +613,15 @@ CREATE TABLE `Note_Destination` (
             }
         }', photos)
     ),
-    FOREIGN KEY (`destination_id`) REFERENCES `Destination`(`destination_id`) ON DELETE CASCADE
+    FOREIGN KEY (`destination_id`) REFERENCES `Destinations`(`destination_id`) ON DELETE CASCADE
 );
 
 
-CREATE TABLE `Advertisement` (
+CREATE TABLE `Advertisements` (
     `advertisement_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `title` VARCHAR(255) NOT NULL,
     `content` TEXT NOT NULL,
-    `photo` TEXT NOT NULL,
+    `image_url` TEXT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
@@ -805,17 +805,17 @@ CREATE TABLE `Payment_Webhook_Payload` (
 
 
 
-CREATE TABLE `Announcement` (
+CREATE TABLE `Announcements` (
     `announcement_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `title` VARCHAR(255) NOT NULL,
     `content` TEXT NOT NULL,
-    `image` TEXT,
+    `image_url` TEXT,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
 
-CREATE TABLE `App_Version` (
+CREATE TABLE `App_Versions` (
     `app_version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `app_name` ENUM('RIDER', 'CUSTOMER') NOT NULL,
     `update_type` BOOLEAN NOT NULL,
@@ -824,9 +824,9 @@ CREATE TABLE `App_Version` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `Driver_Guide` (
+CREATE TABLE `Driver_Guides` (
     `driver_guide_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `file` TEXT NOT NULL,
+    `file_url` TEXT NOT NULL,
     `description` TEXT,
     `is_important` BOOLEAN DEFAULT FALSE,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
