@@ -1,11 +1,11 @@
-CREATE TABLE `Sso_Providers` (
+CREATE TABLE IF NOT EXISTS `Sso_Providers` (
     `sso_provider_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `sso_provider` VARCHAR(255) NOT NULL UNIQUE, 
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP  
 );
 
-CREATE TABLE `Billing_Address` (
+CREATE TABLE IF NOT EXISTS `Billing_Address` (
     `billing_address_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `billing_email` VARCHAR(255),
     `billing_street_address` TEXT,
@@ -17,7 +17,7 @@ CREATE TABLE `Billing_Address` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `Bussiness_Accounts` (
+CREATE TABLE IF NOT EXISTS `Bussiness_Accounts` (
     `bussiness_account_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `company_ABN` VARCHAR(20) NOT NULL, 
     `company_name` VARCHAR(255) NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE `Bussiness_Accounts` (
     FOREIGN KEY (`billing_address_id`) REFERENCES `Billing_Address`(`billing_address_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Users` (
+CREATE TABLE IF NOT EXISTS `Users` (
     `user_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `username` VARCHAR(100) NOT NULL UNIQUE,
     `first_name` VARCHAR(255) NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE `Users` (
     FOREIGN KEY (`bussiness_account_id`) REFERENCES `Bussiness_Accounts`(`bussiness_account_id`)
 );
 
-CREATE TABLE `Groups` (
+CREATE TABLE IF NOT EXISTS `Groups` (
     `group_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL UNIQUE,
     `description` TEXT NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE `Groups` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `Group_Members` (
+CREATE TABLE IF NOT EXISTS `Group_Members` (
     `group_member_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `group_id` BIGINT NOT NULL,
     `user_id` BIGINT NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE `Group_Members` (
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Permissions` (
+CREATE TABLE IF NOT EXISTS `Permissions` (
     `permission_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `permission_name` VARCHAR(255) NOT NULL UNIQUE,
     `description` TEXT NOT NULL,
@@ -85,7 +85,7 @@ CREATE TABLE `Permissions` (
 );
 
 
-CREATE TABLE `Group_Permissions` (
+CREATE TABLE IF NOT EXISTS `Group_Permissions` (
     `group_permission_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `group_id` BIGINT NOT NULL,
     `permission_id` BIGINT NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE `Group_Permissions` (
 );
 
 
-CREATE TABLE `Password_Resets` (
+CREATE TABLE IF NOT EXISTS `Password_Resets` (
     `password_reset_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT NOT NULL,
     `is_Active` BOOLEAN NOT NULL DEFAULT TRUE,
@@ -108,7 +108,7 @@ CREATE TABLE `Password_Resets` (
     FOREIGN KEY (`reseated_by`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Delete_Requests` (
+CREATE TABLE IF NOT EXISTS `Delete_Requests` (
     `delete_request_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT NOT NULL,
     `reason` ENUM('OTHER') NOT NULL,
@@ -118,7 +118,7 @@ CREATE TABLE `Delete_Requests` (
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Events` (
+CREATE TABLE IF NOT EXISTS `Events` (
     `event_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `title` TEXT NOT NULL,
     `link` TEXT,
@@ -131,7 +131,7 @@ CREATE TABLE `Events` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `Event_Groups` (
+CREATE TABLE IF NOT EXISTS `Event_Groups` (
     `event_group_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `event_id` BIGINT NOT NULL,
     `group_id` BIGINT NOT NULL,
@@ -141,7 +141,7 @@ CREATE TABLE `Event_Groups` (
     FOREIGN KEY (`event_id`) REFERENCES `Events`(`event_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Faq` (
+CREATE TABLE IF NOT EXISTS `Faq` (
     `id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `question` TEXT NOT NULL,
     `answer` TEXT NOT NULL,
@@ -150,7 +150,7 @@ CREATE TABLE `Faq` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `Coupons` (
+CREATE TABLE IF NOT EXISTS `Coupons` (
     `coupon_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `discount_type` ENUM('PERCENTAGE', 'FLATRATE') NOT NULL,
     `discount_amount` FLOAT(53) NULL,
@@ -171,7 +171,7 @@ CREATE TABLE `Coupons` (
     FOREIGN KEY (`created_by`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `User_Coupons` (
+CREATE TABLE IF NOT EXISTS `User_Coupons` (
     `user_coupon_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `coupon_id` BIGINT NOT NULL,
     `user_id` BIGINT NOT NULL,
@@ -181,7 +181,7 @@ CREATE TABLE `User_Coupons` (
     FOREIGN KEY (`coupon_id`) REFERENCES `Coupons`(`coupon_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Riders` (
+CREATE TABLE IF NOT EXISTS `Riders` (
     `rider_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT UNIQUE NOT NULL,
     `latitude` FLOAT,
@@ -213,7 +213,7 @@ CREATE TABLE `Riders` (
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Vehicles` (
+CREATE TABLE IF NOT EXISTS `Vehicles` (
     `vehicle_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `rider_id` BIGINT NOT NULL,
     `is_current_vehicle` BOOLEAN DEFAULT FALSE,
@@ -240,7 +240,7 @@ CREATE TABLE `Vehicles` (
     FOREIGN KEY (`rider_id`) REFERENCES `Riders`(`rider_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Penalities` (
+CREATE TABLE IF NOT EXISTS `Penalities` (
     `penalitie_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `rider_id` BIGINT NOT NULL,
     `reason` VARCHAR(255) NOT NULL,
@@ -256,7 +256,7 @@ CREATE TABLE `Penalities` (
     FOREIGN KEY (`admin_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Suspensions` (
+CREATE TABLE IF NOT EXISTS `Suspensions` (
     `suspension_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `rider_id` BIGINT NOT NULL,
     `reason` VARCHAR(255) NOT NULL,
@@ -273,7 +273,7 @@ CREATE TABLE `Suspensions` (
 );
 
 
-CREATE TABLE `Questions` (
+CREATE TABLE IF NOT EXISTS `Questions` (
     `question_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `image` VARCHAR(255),
     `question_text` VARCHAR(255) NOT NULL,
@@ -282,7 +282,7 @@ CREATE TABLE `Questions` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `Question_Options` (
+CREATE TABLE IF NOT EXISTS `Question_Options` (
     `question_option_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `question_id` BIGINT NOT NULL,
     `option` VARCHAR(255) NOT NULL,
@@ -293,7 +293,7 @@ CREATE TABLE `Question_Options` (
     FOREIGN KEY (`question_id`) REFERENCES `Questions`(`question_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Rider_Answers` (
+CREATE TABLE IF NOT EXISTS `Rider_Answers` (
     `rider_answer_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `rider_id` BIGINT NOT NULL,
     `option_id` BIGINT NOT NULL,
@@ -306,7 +306,7 @@ CREATE TABLE `Rider_Answers` (
 );
 
 
-CREATE TABLE `Orders` (
+CREATE TABLE IF NOT EXISTS `Orders` (
     `order_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `order_number` VARCHAR(255) UNIQUE NOT NULL,
     `customer_id` BIGINT,
@@ -345,7 +345,7 @@ CREATE TABLE `Orders` (
     FOREIGN KEY (`assigned_by`) REFERENCES `Users`(`user_id`) ON DELETE SET NULL
 );
 
-CREATE TABLE `Reviews` (
+CREATE TABLE IF NOT EXISTS `Reviews` (
     `review_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT NOT NULL,
     `rider_id` BIGINT NOT NULL,
@@ -360,7 +360,7 @@ CREATE TABLE `Reviews` (
      FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Cancellation_Request` (
+CREATE TABLE IF NOT EXISTS `Cancellation_Request` (
     `cancellation_request_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `type` ENUM('FULL', 'PARTIAL') NOT NULL,
     `status` ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
@@ -388,7 +388,7 @@ CREATE TABLE `Cancellation_Request` (
     FOREIGN KEY (`cancelled_by`) REFERENCES `Users`(`user_id`) ON DELETE SET NULL
 );
 
-CREATE TABLE `Cancellation_Rider_Requests` (
+CREATE TABLE IF NOT EXISTS `Cancellation_Rider_Requests` (
     `cancellation_rider_request_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `status` ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
     `reason` VARCHAR(255) NOT NULL,
@@ -413,7 +413,7 @@ CREATE TABLE `Cancellation_Rider_Requests` (
     FOREIGN KEY (`cancelled_by`) REFERENCES `Users`(`user_id`) ON DELETE SET NULL
 );
 
-CREATE TABLE `Extr_Fees` (
+CREATE TABLE IF NOT EXISTS `Extr_Fees` (
     `extr_fee_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `message` TEXT,
     `amount` FLOAT NOT NULL,
@@ -427,7 +427,7 @@ CREATE TABLE `Extr_Fees` (
     FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Destinations` (
+CREATE TABLE IF NOT EXISTS `Destinations` (
     `destination_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `destination_latitude` FLOAT NOT NULL,
     `destination_longitude` FLOAT NOT NULL,
@@ -447,7 +447,7 @@ CREATE TABLE `Destinations` (
     FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE,
     FOREIGN KEY (`delivery_by_id`) REFERENCES `Riders`(`rider_id`) ON DELETE SET NULL
 );
-CREATE TABLE `Delivery_Details` (
+CREATE TABLE IF NOT EXISTS `Delivery_Details` (
     `delivery_detail_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `pickup_latitude` FLOAT NOT NULL,
     `pickup_longitude` FLOAT NOT NULL,
@@ -477,7 +477,7 @@ CREATE TABLE `Delivery_Details` (
     FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Evidences` (
+CREATE TABLE IF NOT EXISTS `Evidences` (
     `evidence_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `destination_id` BIGINT UNIQUE NOT NULL,
     `urls` JSON NOT NULL,
@@ -499,7 +499,7 @@ CREATE TABLE `Evidences` (
     FOREIGN KEY (`destination_id`) REFERENCES `Destinations`(`destination_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `References` (
+CREATE TABLE IF NOT EXISTS `References` (
     `reference_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `order_ids` JSON NOT NULL,
     `amount` FLOAT NOT NULL,
@@ -522,7 +522,7 @@ CREATE TABLE `References` (
     )
 );
 
-CREATE TABLE `Size_And_Weight_Descriptions` (
+CREATE TABLE IF NOT EXISTS `Size_And_Weight_Descriptions` (
     `size_weight_description_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `size` ENUM('SMALL', 'MEDIUM', 'LARGE') NOT NULL,
     `size_description` TEXT NOT NULL,
@@ -540,7 +540,7 @@ CREATE TABLE `Size_And_Weight_Descriptions` (
     UNIQUE (`unique_size_check`),
     FOREIGN KEY (`previous_id`) REFERENCES `Size_And_Weight_Descriptions`(`size_weight_description_id`)
 );
-CREATE TABLE `Items` (
+CREATE TABLE IF NOT EXISTS `Items` (
     `item_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
     `size_weight_description_id` BIGINT NOT NULL,
@@ -578,7 +578,7 @@ CREATE TABLE `Items` (
     FOREIGN KEY (`size_weight_description_id`) REFERENCES `Size_And_Weight_Descriptions`(`size_weight_description_id`)
 );
 
-CREATE TABLE `Note_Delivery_Details` (
+CREATE TABLE IF NOT EXISTS `Note_Delivery_Details` (
     `note_delivery_detail_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `note` TEXT NOT NULL,
     `photo_urls` JSON NOT NULL,
@@ -597,7 +597,7 @@ CREATE TABLE `Note_Delivery_Details` (
     FOREIGN KEY (`delivery_detail_id`) REFERENCES `Delivery_Details`(`delivery_detail_id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Note_Destinations` (
+CREATE TABLE IF NOT EXISTS `Note_Destinations` (
     `note_destination_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `note` TEXT NOT NULL,
     `photo_urls` JSON NOT NULL,
@@ -617,7 +617,7 @@ CREATE TABLE `Note_Destinations` (
 );
 
 
-CREATE TABLE `Advertisements` (
+CREATE TABLE IF NOT EXISTS `Advertisements` (
     `advertisement_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `title` VARCHAR(255) NOT NULL,
     `content` TEXT NOT NULL,
@@ -626,7 +626,7 @@ CREATE TABLE `Advertisements` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `User_Favorite_Address` (
+CREATE TABLE IF NOT EXISTS `User_Favorite_Address` (
     `favorite_address_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT  NOT NULL,
     `long_address` TEXT NOT NULL,
@@ -642,7 +642,7 @@ CREATE TABLE `User_Favorite_Address` (
     );
 
 
-CREATE TABLE `Transport_Basic_Prices` (
+CREATE TABLE IF NOT EXISTS `Transport_Basic_Prices` (
     `transport_basic_price_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `previous_id` BIGINT ,
     `vehicle_type` ENUM('BICYCLE', 'MOTORBIKE', 'CAR') NOT NULL,
@@ -668,7 +668,7 @@ CREATE TABLE `Transport_Basic_Prices` (
 
 
 
-CREATE TABLE `Peak_Time_Rates` (
+CREATE TABLE IF NOT EXISTS `Peak_Time_Rates` (
     `peak_time_rate_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `is_weekend` BOOLEAN DEFAULT FALSE,
     `start_time` VARCHAR(255) NOT NULL,
@@ -692,7 +692,7 @@ CREATE TABLE `Peak_Time_Rates` (
 
 
 
-CREATE TABLE `Rider_Commissions` (
+CREATE TABLE IF NOT EXISTS `Rider_Commissions` (
     `rider_commission_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `basic_commission` FLOAT NOT NULL,
     `overtime_rate` FLOAT NOT NULL,
@@ -711,7 +711,7 @@ CREATE TABLE `Rider_Commissions` (
     FOREIGN KEY (`previous_id`) REFERENCES `Rider_Commissions`(`rider_commission_id`)
    );
 
-CREATE TABLE `Vehicle_Basic_Prices` (
+CREATE TABLE IF NOT EXISTS `Vehicle_Basic_Prices` (
     `vehicle_basic_price_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `vehicle_type` ENUM('BICYCLE', 'MOTORBIKE', 'CAR') UNIQUE NOT NULL,
     `price` FLOAT NOT NULL,
@@ -731,7 +731,7 @@ CREATE TABLE `Vehicle_Basic_Prices` (
 
 
 
-CREATE TABLE `Pickup_Time_Basic_Prices` (
+CREATE TABLE IF NOT EXISTS `Pickup_Time_Basic_Prices` (
     `pickup_time_basic_price_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `pickup_time` ENUM('TODAY', 'ASAP', 'IN_2_HOURS', 'OTHER_DAY') NOT NULL,
     `vehicle_type` ENUM('BICYCLE', 'MOTORBIKE', 'CAR') NOT NULL,
@@ -751,7 +751,7 @@ CREATE TABLE `Pickup_Time_Basic_Prices` (
 );
 
 
-CREATE TABLE `None_Business_Hour_Rates` (
+CREATE TABLE IF NOT EXISTS `None_Business_Hour_Rates` (
     `none_business_hour_rate_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `start_time` VARCHAR(255) NOT NULL,
     `end_time` VARCHAR(255) NOT NULL,
@@ -769,7 +769,7 @@ CREATE TABLE `None_Business_Hour_Rates` (
 );
 
 
-CREATE TABLE `States` (
+CREATE TABLE IF NOT EXISTS `States` (
     `state_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) UNIQUE NOT NULL,
     `code` VARCHAR(10) NOT NULL,
@@ -778,7 +778,7 @@ CREATE TABLE `States` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
    );
    
-CREATE TABLE `Service_Areas` (
+CREATE TABLE IF NOT EXISTS `Service_Areas` (
     `service_area_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
     `code` VARCHAR(255),
@@ -789,7 +789,7 @@ CREATE TABLE `Service_Areas` (
      FOREIGN KEY (`state_name`) REFERENCES `States`(`name`) ON DELETE CASCADE
 );
 
-CREATE TABLE `Payment_Webhook_Payload` (
+CREATE TABLE IF NOT EXISTS `Payment_Webhook_Payload` (
     `payment_webhook_payload_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `pspReference` VARCHAR(255) NOT NULL,
     `merchantReference` VARCHAR(255) NOT NULL,
@@ -805,7 +805,7 @@ CREATE TABLE `Payment_Webhook_Payload` (
 
 
 
-CREATE TABLE `Announcements` (
+CREATE TABLE IF NOT EXISTS `Announcements` (
     `announcement_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `title` VARCHAR(255) NOT NULL,
     `content` TEXT NOT NULL,
@@ -815,7 +815,7 @@ CREATE TABLE `Announcements` (
 );
 
 
-CREATE TABLE `App_Versions` (
+CREATE TABLE IF NOT EXISTS `App_Versions` (
     `app_version_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `app_name` ENUM('RIDER', 'CUSTOMER') NOT NULL,
     `update_type` BOOLEAN NOT NULL,
@@ -824,7 +824,7 @@ CREATE TABLE `App_Versions` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `Driver_Guides` (
+CREATE TABLE IF NOT EXISTS `Driver_Guides` (
     `driver_guide_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `file_url` TEXT NOT NULL,
     `description` TEXT,
@@ -833,7 +833,7 @@ CREATE TABLE `Driver_Guides` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE `Rider_Payments` (
+CREATE TABLE IF NOT EXISTS `Rider_Payments` (
     `rider_payment_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `rider_id` BIGINT  NOT NULL,
     `distance` FLOAT NOT NULL,
