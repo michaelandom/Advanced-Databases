@@ -5,28 +5,14 @@ CREATE TABLE IF NOT EXISTS `Sso_Providers` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
     );
 
-CREATE TABLE IF NOT EXISTS `Billing_Address` (
-                                                 `billing_address_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                                                 `billing_email` VARCHAR(255),
-    `billing_street_address` TEXT,
-    `billing_street_address_2` TEXT,
-    `billing_state` VARCHAR(255),
-    `billing_postcode` VARCHAR(10), -- Use VARCHAR for postal codes
-    `billing_suburb` VARCHAR(255),
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
-    );
-
 CREATE TABLE IF NOT EXISTS `Bussiness_Accounts` (
                                                     `bussiness_account_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                                     `company_ABN` VARCHAR(20) NOT NULL,
     `company_name` VARCHAR(255) NOT NULL,
     `logo_url` TEXT,
     `is_active` BOOLEAN NOT NULL,
-    `billing_address_id` BIGINT ,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`billing_address_id`) REFERENCES `Billing_Address`(`billing_address_id`) ON DELETE CASCADE
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
     );
 
 CREATE TABLE IF NOT EXISTS `Users` (
@@ -36,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `Users` (
     `last_name` VARCHAR(255) NOT NULL,
     `date_of_birth` DATE NOT NULL,
     `gender` ENUM('MALE', 'FEMALE', 'OTHER') NOT NULL,
-    `email` VARCHAR(255) UNIQUE,
+    `email` VARCHAR(255) NOT NULL UNIQUE,
     `email_verified` BOOLEAN NOT NULL DEFAULT FALSE,
     `phone` VARCHAR(20),
     `phone_verified` BOOLEAN NOT NULL DEFAULT FALSE,
@@ -44,7 +30,6 @@ CREATE TABLE IF NOT EXISTS `Users` (
     `last_login` DATETIME,
     `account_type` ENUM('STANDARD', 'SSO') NOT NULL DEFAULT 'STANDARD',
     `sso_provider_id` BIGINT,
-    `billing_address_id` BIGINT,
     `bussiness_account_id` BIGINT,
     `request_for_delete_at` DATETIME,
     `deactivated_date` DATETIME,
@@ -53,8 +38,42 @@ CREATE TABLE IF NOT EXISTS `Users` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (`sso_provider_id`) REFERENCES `Sso_Providers`(`sso_provider_id`),
-    FOREIGN KEY (`billing_address_id`) REFERENCES `Billing_Address`(`billing_address_id`),
     FOREIGN KEY (`bussiness_account_id`) REFERENCES `Bussiness_Accounts`(`bussiness_account_id`)
+    );
+
+CREATE TABLE IF NOT EXISTS `States` (
+                                        `state_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                        `name` VARCHAR(255) NOT NULL UNIQUE,
+    `code` VARCHAR(10) NOT NULL,
+    `logo_url` TEXT,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
+    );
+
+CREATE TABLE IF NOT EXISTS `Service_Areas` (
+                                               `service_area_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                               `name` VARCHAR(255) NOT NULL UNIQUE,
+    `code` VARCHAR(255),
+    `is_active` BOOLEAN DEFAULT FALSE,
+    `state_id` BIGINT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`state_id`) REFERENCES `States`(`state_id`) ON DELETE CASCADE
+    );
+
+CREATE TABLE IF NOT EXISTS `Billing_Address` (
+                                                 `billing_address_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                                 `billing_email` VARCHAR(255),
+    `billing_street_address` TEXT,
+    `billing_street_address2` TEXT,
+    `billing_state_id` BIGINT,
+    `billing_postcode` VARCHAR(10), -- Use VARCHAR for postal codes
+    `billing_suburb` VARCHAR(255),
+    `user_id` BIGINT NOT NULL UNIQUE,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`billing_state_id`) REFERENCES `States`(`state_id`) ON DELETE CASCADE
     );
 
 CREATE TABLE IF NOT EXISTS `Groups` (
@@ -126,10 +145,11 @@ CREATE TABLE IF NOT EXISTS `Events` (
                                         `start_date` DATETIME NOT NULL,
                                         `end_date` DATETIME,
                                         `send_push_notification` BOOLEAN NOT NULL DEFAULT FALSE,
-                                        `banner_image` TEXT NOT NULL,
+                                        `banner_image_url` TEXT NOT NULL,
                                         `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                         `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
+
 
 CREATE TABLE IF NOT EXISTS `Event_Groups` (
                                               `event_group_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -145,7 +165,7 @@ CREATE TABLE IF NOT EXISTS `Faq` (
                                      `id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                      `question` TEXT NOT NULL,
                                      `answer` TEXT NOT NULL,
-                                     `isForRider` BOOLEAN DEFAULT FALSE,
+                                     `is_for_rider` BOOLEAN DEFAULT FALSE,
                                      `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                      `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
@@ -165,7 +185,7 @@ CREATE TABLE IF NOT EXISTS `Coupons` (
     `code` VARCHAR(255) NULL,
     `number_of_issued_coupons` BIGINT NOT NULL DEFAULT 0,
     `number_of_used_coupons` BIGINT NOT NULL DEFAULT 0,
-    `excel_file` TEXT NULL,
+    `excel_file_url` TEXT NULL,
     `created_by` BIGINT NOT NULL,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (`created_by`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
@@ -765,29 +785,11 @@ CREATE TABLE IF NOT EXISTS `None_Business_Hour_Rates` (
     END
     ) STORED,
     UNIQUE (`unique_start_time_end_time_check`),
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (`created_by`) REFERENCES `Users`(`user_id`) ON DELETE SET NULL
     );
 
-
-CREATE TABLE IF NOT EXISTS `States` (
-                                        `state_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                                        `name` VARCHAR(255) UNIQUE NOT NULL,
-    `code` VARCHAR(10) NOT NULL,
-    `logo` VARCHAR(255),
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
-    );
-
-CREATE TABLE IF NOT EXISTS `Service_Areas` (
-                                               `service_area_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                                               `name` VARCHAR(255) NOT NULL,
-    `code` VARCHAR(255),
-    `is_active` BOOLEAN DEFAULT FALSE,
-    `state_name` VARCHAR(255) NOT NULL,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (`state_name`) REFERENCES `States`(`name`) ON DELETE CASCADE
-    );
 
 CREATE TABLE IF NOT EXISTS `Payment_Webhook_Payload` (
                                                          `payment_webhook_payload_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -800,7 +802,8 @@ CREATE TABLE IF NOT EXISTS `Payment_Webhook_Payload` (
     `amount` JSON NOT NULL,
     `success` BOOLEAN NOT NULL,
     `payload` JSON NOT NULL,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
     );
 
 
