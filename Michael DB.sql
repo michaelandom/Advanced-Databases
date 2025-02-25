@@ -91,7 +91,8 @@ CREATE TABLE IF NOT EXISTS `Group_Members` (
                                                `user_id` BIGINT NOT NULL,
                                                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                                `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-                                               FOREIGN KEY (`group_id`) REFERENCES `Ma_Groups`(`group_id`) ON DELETE CASCADE,
+                                               UNIQUE (`group_id`,`user_id`),
+    FOREIGN KEY (`group_id`) REFERENCES `Ma_Groups`(`group_id`) ON DELETE CASCADE,
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE
     );
 
@@ -110,6 +111,7 @@ CREATE TABLE IF NOT EXISTS `Group_Permissions` (
                                                    `permission_id` BIGINT NOT NULL,
                                                    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                                    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+                                                   UNIQUE (`group_id`,`permission_id`),
                                                    FOREIGN KEY (`group_id`) REFERENCES `Ma_Groups`(`group_id`) ON DELETE CASCADE,
     FOREIGN KEY (`permission_id`) REFERENCES `Permissions`(`permission_id`) ON DELETE CASCADE
     );
@@ -157,7 +159,8 @@ CREATE TABLE IF NOT EXISTS `Event_Groups` (
                                               `group_id` BIGINT NOT NULL,
                                               `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                               `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
-                                              FOREIGN KEY (`group_id`) REFERENCES `Ma_Groups`(`group_id`) ON DELETE CASCADE,
+                                              UNIQUE (`group_id`,`event_id`),
+    FOREIGN KEY (`group_id`) REFERENCES `Ma_Groups`(`group_id`) ON DELETE CASCADE,
     FOREIGN KEY (`event_id`) REFERENCES `Events`(`event_id`) ON DELETE CASCADE
     );
 
@@ -197,6 +200,7 @@ CREATE TABLE IF NOT EXISTS `User_Coupons` (
                                               `user_id` BIGINT NOT NULL,
                                               `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                               `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+                                              UNIQUE (`coupon_id`,`user_id`),
                                               FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`) ON DELETE CASCADE,
     FOREIGN KEY (`coupon_id`) REFERENCES `Coupons`(`coupon_id`) ON DELETE CASCADE
     );
@@ -295,7 +299,7 @@ CREATE TABLE IF NOT EXISTS `Suspensions` (
 
 CREATE TABLE IF NOT EXISTS `Questions` (
                                            `question_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                                           `image` VARCHAR(255),
+                                           `image_url` VARCHAR(255),
     `question_text` VARCHAR(255) NOT NULL,
     `description` TEXT,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -305,7 +309,7 @@ CREATE TABLE IF NOT EXISTS `Questions` (
 CREATE TABLE IF NOT EXISTS `Question_Options` (
                                                   `question_option_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                                   `question_id` BIGINT NOT NULL,
-                                                  `option` VARCHAR(255) NOT NULL,
+                                                  `question_option` VARCHAR(255) NOT NULL,
     `description` TEXT,
     `is_correct` BOOLEAN DEFAULT FALSE,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -678,7 +682,7 @@ CREATE TABLE IF NOT EXISTS `Transport_Basic_Prices` (
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
     `unique_transport_basic_prices_size_check` VARCHAR(50) GENERATED ALWAYS AS (
                                                                                    CASE WHEN is_latest = TRUE
-                                                                                   THEN "LATEST"
+                                                                                   THEN CONCAT(vehicle_type, '_', "LATEST")
                                                                                    ELSE NULL
                                                                                    END
                                                                                ) STORED,
