@@ -840,6 +840,8 @@ CREATE TABLE IF NOT EXISTS `Driver_Guides` (
                                                `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
+
+
 CREATE TABLE IF NOT EXISTS `Rider_Payments` (
                                                 `rider_payment_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                                 `rider_id` BIGINT  NOT NULL,
