@@ -1,3 +1,5 @@
+USE db;
+
 CREATE TABLE IF NOT EXISTS `Sso_Providers` (
                                                `sso_provider_id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                                `sso_provider` VARCHAR(255) NOT NULL UNIQUE,

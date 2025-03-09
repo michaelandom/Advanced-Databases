@@ -1,3 +1,7 @@
+
+USE db;
+
+
 -- Indexes for Users table
 CREATE INDEX idx_users_email ON Users(email);
 CREATE INDEX idx_users_phone ON Users(phone);

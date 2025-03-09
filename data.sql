@@ -1,3 +1,4 @@
+USE db;
 -- Insert data into Sso_Providers table
 INSERT INTO `Sso_Providers` (`sso_provider`) VALUES
                                                  ('Google'),
