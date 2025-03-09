@@ -854,6 +854,3 @@ CREATE TABLE IF NOT EXISTS `Rider_Payments` (
                                                 `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
                                                 FOREIGN KEY (`rider_id`) REFERENCES `Riders`(`rider_id`) ON DELETE CASCADE
     );
-
--- CREATE INDEX idx_user_phone ON `Users`(`phone`);
--- CREATE INDEX idx_order_status ON `Orders`(`order_status`, `customer_id`);
