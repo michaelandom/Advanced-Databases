@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS `Password_Resets` (
                                                  `password_reset_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                                  `user_id` BIGINT NOT NULL,
                                                  `is_Active` BOOLEAN NOT NULL DEFAULT TRUE,
-                                                 `code` VARCHAR(50) NOT NULL,
+                                                 `code` VARCHAR(50) NULL,
     `reseated_by` BIGINT,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -322,9 +322,9 @@ CREATE TABLE IF NOT EXISTS `Rider_Answers` (
                                                `rider_id` BIGINT NOT NULL,
                                                `option_id` BIGINT NOT NULL,
                                                `quiz_key` ENUM('INITIAL_QUIZ', 'SECOND_QUIZ', 'FINAL_QUIZ', 'UNAVAILABLE') DEFAULT 'INITIAL_QUIZ',
-    `is_correct` BOOLEAN DEFAULT FALSE,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (`rider_id`,`option_id`,`quiz_key`),
     FOREIGN KEY (`rider_id`) REFERENCES `Riders`(`rider_id`) ON DELETE CASCADE,
     FOREIGN KEY (`option_id`) REFERENCES `Question_Options`(`question_option_id`) ON DELETE CASCADE
     );
@@ -420,7 +420,7 @@ CREATE TABLE IF NOT EXISTS `Cancellation_Rider_Requests` (
     `remark` TEXT,
     `cancelled_by` BIGINT,
     `response_at` TIMESTAMP NULL,
-    `response_by` VARCHAR(255),
+    `response_by` BIGINT,
     `order_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -434,7 +434,8 @@ CREATE TABLE IF NOT EXISTS `Cancellation_Rider_Requests` (
         }', photo_urls)
     ),
     FOREIGN KEY (`order_id`) REFERENCES `Orders`(`order_id`) ON DELETE CASCADE,
-    FOREIGN KEY (`cancelled_by`) REFERENCES `Users`(`user_id`) ON DELETE SET NULL
+    FOREIGN KEY (`cancelled_by`) REFERENCES `Riders`(`rider_id`) ON DELETE SET NULL,
+    FOREIGN KEY (`response_by`) REFERENCES `Users`(`user_id`) ON DELETE SET NULL
     );
 
 CREATE TABLE IF NOT EXISTS `Extr_Fees` (
@@ -477,11 +478,11 @@ CREATE TABLE IF NOT EXISTS `Delivery_Details` (
                                                   `pickup_longitude` FLOAT NOT NULL,
                                                   `pickup_address_text` VARCHAR(255),
     `estimated_time` INT DEFAULT 0,
-    `pickup_time` ENUM('MORNING', 'AFTERNOON', 'EVENING') NOT NULL,
+    `pickup_time` ENUM('TODAY','ASAP','IN_2_HOURS','OTHER_DAY') NOT NULL,
     `pickup_date_time` TIMESTAMP NULL,
     `picked_up_date_time` TIMESTAMP NULL,
     `desired_arrival_date_time` TIMESTAMP NULL,
-    `picked_up_by` VARCHAR(255),
+    `picked_up_by` BIGINT,
     `picked_up_notes` TEXT,
     `recipient_phone_number` VARCHAR(255),
     `recipient_name` VARCHAR(255),
@@ -523,7 +524,7 @@ CREATE TABLE IF NOT EXISTS `Evidences` (
     FOREIGN KEY (`destination_id`) REFERENCES `Destinations`(`destination_id`) ON DELETE CASCADE
     );
 
-CREATE TABLE IF NOT EXISTS `References` (
+CREATE TABLE IF NOT EXISTS `Ma_References` (
                                             `reference_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                             `order_ids` JSON NOT NULL,
                                             `amount` FLOAT NOT NULL,
@@ -795,14 +796,14 @@ CREATE TABLE IF NOT EXISTS `None_Business_Hour_Rates` (
     );
 
 
-CREATE TABLE IF NOT EXISTS `Payment_Webhook_Payload` (
+CREATE TABLE IF NOT EXISTS `Payment_Webhook_Payloads` (
                                                          `payment_webhook_payload_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                                                         `pspReference` VARCHAR(255) NOT NULL,
-    `merchantReference` VARCHAR(255) NOT NULL,
-    `originalReference` VARCHAR(255),
-    `eventCode` VARCHAR(255) NOT NULL,
+                                                         `psp_reference` VARCHAR(255) NOT NULL,
+    `merchant_reference` VARCHAR(255) NOT NULL,
+    `original_reference` VARCHAR(255),
+    `event_code` VARCHAR(255) NOT NULL,
     `reason` TEXT,
-    `paymentMethod` VARCHAR(255),
+    `payment_method` VARCHAR(255),
     `amount` JSON NOT NULL,
     `success` BOOLEAN NOT NULL,
     `payload` JSON NOT NULL,
@@ -839,8 +840,6 @@ CREATE TABLE IF NOT EXISTS `Driver_Guides` (
                                                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                                `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 );
-
-
 
 CREATE TABLE IF NOT EXISTS `Rider_Payments` (
                                                 `rider_payment_id` BIGINT  NOT NULL AUTO_INCREMENT PRIMARY KEY,
