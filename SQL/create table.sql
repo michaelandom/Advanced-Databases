@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `Billing_Address` (
     `billing_street_address` TEXT,
     `billing_street_address2` TEXT,
     `billing_state_id` BIGINT,
-    `billing_postcode` VARCHAR(10), -- Use VARCHAR for postal codes
+    `billing_postcode` VARCHAR(10), 
     `billing_suburb` VARCHAR(255),
     `user_id` BIGINT NOT NULL UNIQUE,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
