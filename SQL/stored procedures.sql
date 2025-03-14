@@ -7,7 +7,6 @@ DELIMITER //
 -- =================================================================
 
 DROP PROCEDURE IF EXISTS sp_get_active_riders_in_radius//
-
 /**
  * Finds all active riders within a specified radius of a location
  */
