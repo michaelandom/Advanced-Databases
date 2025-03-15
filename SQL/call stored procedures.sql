@@ -31,6 +31,44 @@ CALL sp_get_rider_performance(
     '2025-03-15'    
 );
 
+/**
+ * Process Order Review
+ * Adds a review for a completed order
+ */
+
+
+CALL sp_process_order_review(
+    7,      
+    8,      
+    'Great service!',  
+    5           
+);
+
+
+/**
+ * Add Order Destination
+ * Adds a destination to an existing order
+ */
+
+CALL sp_add_order_destination(
+    1,
+    37.774929,
+    -122.419418,
+    '123 Main St, San Francisco',
+    'John Doe',
+    '+1234567890',
+    1
+);
 
 
 
+/**
+ * Processes quiz results for a rider
+ */
+CALL sp_process_rider_quiz(
+    1,                       
+    'INITIAL_QUIZ',              
+    @passed                     
+);
+
+SELECT @passed;
