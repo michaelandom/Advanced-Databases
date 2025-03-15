@@ -147,6 +147,7 @@ CREATE PROCEDURE sp_create_order(
     IN p_pickup_address TEXT,
     IN p_recipient_name VARCHAR(255),
     IN p_recipient_phone VARCHAR(20),
+    IN p_pickup_photo_urls JSON,
     OUT p_order_id BIGINT
 )
 BEGIN
@@ -180,6 +181,7 @@ BEGIN
         pickup_longitude,
         pickup_address_text,
         pickup_time,
+        pickup_photo_urls,
         recipient_name,
         recipient_phone_number
     ) VALUES (
@@ -188,6 +190,7 @@ BEGIN
         p_pickup_longitude,
         p_pickup_address,
         'ASAP',
+        p_pickup_photo_urls,
         p_recipient_name,
         p_recipient_phone
     );
@@ -307,6 +310,3 @@ BEGIN
 END //
 
 DELIMITER ;
-
-
-CALL sp_get_active_riders_in_radius(-33.8688, 151.2093, 5); 
