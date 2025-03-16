@@ -204,6 +204,14 @@ INSERT INTO `Permissions` (`permission_name`, `description`) VALUES
                                                                  ('DELETE_EVENT_ONE', 'Delete event'),
                                                                  ('DELETE_EVENT_MANY', 'Delete multiple events'),
 
+                                                                 ('MANAGE_EVENT_GROUPS', 'Create, update, and delete events'),
+                                                                 ('VIEW_EVENT_GROUP', 'View event'),
+                                                                 ('VIEW_EVENT_GROUP_MANY', 'View multiple events'),
+                                                                 ('UPDATE_EVENT_GROUP_ONE', 'Update event'),
+                                                                 ('UPDATE_EVENT_GROUP_MANY', 'Update multiple events'),
+                                                                 ('DELETE_EVENT_GROUP_ONE', 'Delete event'),
+                                                                 ('DELETE_EVENT_GROUP_MANY', 'Delete multiple events'),
+
                                                                  -- Faq
                                                                  ('MANAGE_FAQ', 'Create, update, and delete FAQ'),
                                                                  ('VIEW_FAQ', 'View FAQ'),
@@ -554,7 +562,7 @@ INSERT INTO `Event_Groups` (`event_id`, `group_id`) VALUES
 
 -- Insert data into Group_Members table
 INSERT INTO `Group_Members` (`group_id`, `user_id`) VALUES
-                                                        (1, 1),
+                                                        (1, 12),
                                                         (2, 2),
                                                         (3, 3),
                                                         (4, 4),
@@ -614,7 +622,8 @@ INSERT INTO `Group_Permissions` (`group_id`, `permission_id`) VALUES
                                                                   (1, 323),
                                                                   (1, 330),
                                                                   (1, 337),
-                                                                  (1, 344);
+                                                                  (1, 344),
+                                                                  (1, 351);
 
 
 -- Insert data into Riders table
