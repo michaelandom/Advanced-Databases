@@ -1,3 +1,4 @@
+USE db;
 /**
  * Finds all active riders within a specified radius of a location
  */
