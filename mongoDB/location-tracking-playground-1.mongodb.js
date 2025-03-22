@@ -106,8 +106,99 @@ db.LocationTracking.insertMany([
       "location_permission": "always",
       "location_source": "fusion"
     }
+  },
+  {
+    "rider_id": 5,
+    "timestamp": new Date(),
+    "location": {
+      "type": "Point",
+      "coordinates": [78.4867, 17.3850],
+      "accuracy": 12,
+      "altitude": 85,
+      "altitude_accuracy": 9
+    },
+    "speed": 45,
+    "heading": 90,
+    "acceleration": {
+      "x": 0.3,
+      "y": 0.2,
+      "z": 0.1
+    },
+    "battery_level": 50,
+    "battery_status": "charging",
+    "order_tracking_id": 3,
+    "status": "moving",
+    "signal_strength": 72,
+    "network_type": "4G",
+    "metadata": {
+      "device_id": "device126",
+      "app_state": "active",
+      "location_permission": "always",
+      "location_source": "GPS"
+    }
+  },
+  {
+    "rider_id": 7,
+    "timestamp": new Date(),
+    "location": {
+      "type": "Point",
+      "coordinates": [72.8777, 19.0760],
+      "accuracy": 18,
+      "altitude": 70,
+      "altitude_accuracy": 7
+    },
+    "speed": 30,
+    "heading": 360,
+    "acceleration": {
+      "x": 0.1,
+      "y": 0.2,
+      "z": 0.3
+    },
+    "battery_level": 85,
+    "battery_status": "charging",
+    "order_tracking_id": 4,
+    "status": "idle",
+    "signal_strength": 78,
+    "network_type": "5G",
+    "metadata": {
+      "device_id": "device127",
+      "app_state": "background",
+      "location_permission": "while_using",
+      "location_source": "network"
+    }
+  },
+  {
+    "rider_id": 9,
+    "timestamp": new Date(),
+    "location": {
+      "type": "Point",
+      "coordinates": [80.2785, 13.0878],
+      "accuracy": 14,
+      "altitude": 95,
+      "altitude_accuracy": 10
+    },
+    "speed": 55,
+    "heading": 270,
+    "acceleration": {
+      "x": 0.5,
+      "y": 0.6,
+      "z": 0.7
+    },
+    "battery_level": 40,
+    "battery_status": "not_charging",
+    "order_tracking_id": 5,
+    "status": "moving",
+    "signal_strength": 70,
+    "network_type": "LTE",
+    "metadata": {
+      "device_id": "device128",
+      "app_state": "foreground",
+      "location_permission": "always",
+      "location_source": "GPS"
+    }
   }
 ]);
+
 
 
 // Find One Document
@@ -146,3 +237,7 @@ db.LocationTracking.deleteOne({ "rider_id": 3  });
 
 // Delete Many Documents
 db.LocationTracking.deleteMany({ "status": "idle" });
+
+
+// Delete All Documents
+db.LocationTracking.deleteMany({});

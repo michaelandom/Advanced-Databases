@@ -264,3 +264,7 @@ db.Orders.deleteOne({ "order_id": 3 });
 
 // Delete Many Documents
 db.Orders.deleteMany({ "status": "cancelled" });
+
+
+// Delete ALL Documents
+db.Orders.deleteMany({});
